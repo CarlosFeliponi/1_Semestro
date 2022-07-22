@@ -1,0 +1,30 @@
+#ifndef MERCADO_H_INCLUDED
+#define MERCADO_H_INCLUDED
+
+
+/*-------------------------------------------------------------------------------
+funcao do molde do logo, basta fazer a chamada e colocar o titulo nos parametros*/
+    void logo(char x[]);
+/*-------------------------------------------------------------------------------
+funcao do molde de tela de error*/
+    void errouu(void);
+/*-------------------------------------------------------------------------------
+funcao que apresenta o carinho no menu, parametros:valor e itens total do carinho*/
+    void carinhoLogo(int aux_iten,float vtotal);
+/*-------------------------------------------------------------------------------
+funcao que apresenta o stock atual*/
+    void produtos(void);
+/*-------------------------------------------------------------------------------
+funcao para resetar todo o stock e carinho ao finalizar a compra*/
+    void resetar(void);
+/*-------------------------------------------------------------------------------
+Menu principal com ops*/
+    int menu(void);
+/*-------------------------------------------------------------------------------
+Submenu de vendas*/
+    void submenu(void);
+/*-------------------------------------------------------------------------------
+Finalizador da compra*/
+    void fim_compra(void);
+
+#endif // MERCADO_H_INCLUDED

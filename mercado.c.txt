@@ -1,0 +1,292 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <windows.h>
+#include "mercado.h"
+
+/*-------------------------------------------------------------------------------
+variaveis globais, utilizadas no carinho com o menu e o submenu*/
+
+    int aux_iten=0;  /*auxiliar em qual fila esta sendo guardado o item no carinho na funcao submenu, e exibindo na fim_compra a quantidade de filas na que foram usadas.
+                    dessa maneira ele vai guardar em uma fila por vez, etambem auxilia na apresentação da quantidade de itens no carinho*/
+
+    float vtotal=0;  /*ira armazenar o valor total dos itens selecionados*/
+
+    typedef struct  /*ira guardar exatamente oque esta no carinho*/
+    {
+        char nomeProdutoC[20];
+        float valorC;
+        int quantiC;
+        float subvC;
+    } S_Carinho;
+
+    S_Carinho carinhoS[25];
+
+/*-------------------------------------------------------------------------------
+stock atual armazenado*/
+    typedef struct
+    {
+        int codigo;
+        char nomeProduto[20];
+        float valor;
+        int estoque;
+    } S_lista;
+
+    S_lista stock[]=
+    {
+        {1,"Pão de Forma",7.50,10},
+        {2,"Pão de Centeio",8.69,20},
+        {3,"Broa de Milho",5.00,5},
+        {4,"Sonho",4.50,30},
+        {5,"Tubaína",3.25,50}
+    };
+
+/*-------------------------------------------------------------------------------
+funcao do molde do logo, basta fazer a chamada e colocar o titulo nos parametros*/
+void logo(char x[])
+{
+    printf("\n\t\t********************************\n"
+           "\t\t*%s*\n"
+           "\t\t********************************\n",x);
+    return;
+}
+
+/*-------------------------------------------------------------------------------
+funcao do molde de tela de error*/
+void errouu(void)
+{
+    printf("\n\n\n\n"
+           "\t\t        ___________________\n"
+            "\t\t       |-------ERROR-------|\n"
+            "\t\t       |  Opção inválida   |\n"
+            "\t\t       |  Tente novamente  |\n"
+            "\t\t       |___________________|\n\n");
+    Sleep(1000);
+    system("cls");
+    return;
+}
+
+/*-------------------------------------------------------------------------------
+funcao que apresenta o carinho no menu*/
+void carinhoLogo(int aux_iten,float vtotal)
+{
+    if(aux_iten > 0)  /*if para exibir carinho no menu e submenu*/
+    {
+    printf("\t\t+-----------CARINHO------------+\n"
+           "\t\t$   Qtd: %-2d/25 |    R$: %-7.2lf$\n"  /*o -5 e o -7 são para espacamento automatico, para assim o espaco se adptar com qualquer numero*/
+           "\t\t+------------------------------+", aux_iten,
+                                                    vtotal);
+    }
+    return;
+}
+
+/*-------------------------------------------------------------------------------
+funcao que apresenta o stock atual*/
+void produtos(void)
+{
+    printf("\n\t\t________________________________"
+           "\n\t\t| CD| PRODUTO\t    | VALOR|QTD|");
+    for(int i=0; i<5; i++)
+    {
+        printf("\n\t\t|---|---------------|------|---|"
+               "\n\t\t| %d |"
+               " %-14s"
+               "| %.2lf "
+               "| %-2d|",stock[i].codigo,
+                        stock[i].nomeProduto,
+                        stock[i].valor,
+                        stock[i].estoque);
+    }
+    printf("\n\t        |___|_______________|______|___|\n\n");
+    return;
+}
+
+/*-------------------------------------------------------------------------------
+funcao para resetar todo o stock e carinho ao finalizar a compra*/
+void resetar(void)
+{
+    for(int i=0;i<aux_iten;i++)
+    {
+        carinhoS[i].nomeProdutoC[20]="";
+        carinhoS[i].valorC=0;
+        carinhoS[i].quantiC=0;
+        carinhoS[i].subvC=0;
+    }
+    vtotal=0;
+    aux_iten=0;
+}
+/*-------------------------------------------------------------------------------
+Menu principal com ops*/
+int menu(void)
+{
+    int ops;
+
+    logo("       MERCADO BERENICE       ");
+    carinhoLogo(aux_iten,vtotal);
+    printf("\n\t\t+------------------------------+"
+           "\n\t\t| %d | %s %19s|"
+           "\n\t\t|------------------------------|"
+           "\n\t\t| %d | %s %7s|"
+           "\n\t\t|------------------------------|"
+           "\n\t\t| %d | %-25s|"
+           "\n\t\t|------------------------------|"
+           "\n\t\t| %d | %-24s |"
+           "\n\t\t+------------------------------+\n\n", 1,"Venda","",     /*<--metodo 1 espacamento*/
+                                                        2,"Lista de Produtos","",
+                                                        3,"Finalizar a Compra",
+                                                        0,"Sair");        /*<--metodo 2 espacamento*/
+    printf("\t\tSelecionem a opção desejada:  ");
+    scanf("%d",&ops);
+    getchar();
+    system("cls");
+
+    return ops;
+}
+
+/*-------------------------------------------------------------------------------
+Submenu de vendas*/
+void submenu(void)
+{
+    int codePro; /*variavel que ira selecionar o item desejado*/
+    int qtd;    /*variavel que ira selecionar a quantidade desejada do item*/
+
+    do
+    {
+        logo("            VENDA             ");
+        carinhoLogo(aux_iten,vtotal);/*aux_iten, vtotal são variaveis globais para armazenar o carinho*/
+        produtos();
+        printf("\t\t    PRECIONE '0' PARA VOLTAR\n\n");
+
+        printf("\t\tCodigo do produto desejado: ");
+        scanf("%d",&codePro);
+        getchar();
+
+        if(codePro < 0 || codePro>5)    /*caso selecione uma opcao invalida*/
+        {
+            system("cls");
+            errouu();
+            continue;
+        }
+        if(codePro==0)   /*opcao de voltar ao menu principal*/
+        {
+            system("cls");
+            printf("\n\n\n\n\n\t\t       Voltando Para o Menu...");
+            Sleep(600);
+            system("cls");
+            break;
+        }
+
+        printf("\n\t\tDigite a quantidade desejada: ");
+        scanf("%d",&qtd);
+        getchar();
+
+        if(qtd>stock[codePro-1].estoque)   /*Verifica se esta diponivel a quantidade exigida no stock*/
+        {
+            printf("\n\t\t      Quantidade Indisponivel\n"
+                   "\t\t         Tente Novamente!\n"
+                   "\t\t      -----------------------\n");
+            Sleep(1500);
+            system("cls");
+            continue;
+        }
+        if(aux_iten>=25) /*msg caso o carinho esteja cheio*/
+        {
+            system("cls");
+            printf("\n\n\n\n"
+                    "\t\t        ___________________\n"
+                    "\t\t       |---CARINHO CHEIO---|\n"
+                    "\t\t       | Finalize a compra |\n"
+                    "\t\t       |  para continuar!  |\n"
+                    "\t\t       |___________________|\n\n");
+            Sleep(2000);
+            system("cls");
+            break;
+        }
+        else    /*adicionar todo os dados na struct do carinho*/
+            {
+                for(int i=aux_iten;i<=aux_iten;i++)
+                {
+                strcpy(carinhoS[i].nomeProdutoC,stock[codePro-1].nomeProduto);  /*adiciona o nome do produto*/
+                carinhoS[i].valorC=stock[codePro-1].valor;                      /*valor da unid. do produto adiciona*/
+                carinhoS[i].quantiC=qtd;                                        /*quantidade do produto solicitada*/
+                carinhoS[i].subvC=qtd*carinhoS[i].valorC;                       /*valor do produto multiplicado pela qtd solicitada*/
+
+                stock[codePro-1].estoque -= qtd;        /*remove a qtd do produto do stock que foi para o carinho*/
+                vtotal+=(stock[codePro-1].valor*qtd);     /*valor total, pega o valor do produto e multimica pela qtd solicitada*/
+                }
+            aux_iten++;         /*quantidade de itens no carinho atualizada*/
+            }
+    system("cls");
+    }while(codePro!=0);
+    return;
+}
+
+/*-------------------------------------------------------------------------------
+Finalizador da compra*/
+void fim_compra(void)
+{
+    int opc2=0;
+    do
+    {
+    logo("      FINALIZAR A COMPRA      ");
+
+    printf("\n\t__________________________________________________"
+           "\n\t| ITEM | PRODUTO\t| VALOR | QTD | SUBVALOR |");
+    for(int i=0;i<aux_iten; i++)
+    {
+        printf("\n\t|------|----------------|-------|-----|----------|"
+               "\n\t|  %-4d|"
+               " %-15s"
+               "| %.2f  "
+               "| %-4d|"
+               " %-9.2lf|",i+1, /*+1 apenas para não iniciar o printf da lista com 0*/
+                        carinhoS[i].nomeProdutoC,
+                        carinhoS[i].valorC,
+                        carinhoS[i].quantiC,
+                        carinhoS[i].subvC);
+    };
+    printf("\n\t|______|________________|_______|_____|__________|\n");
+    printf("\t\t\t\t\t      |R$:%-7.2lf|\n"
+           "\t\t\t\t\t      |----------|\n",vtotal);
+
+    printf("\t\t________________________\n"
+           "\t\t|1 - Finalizar Compra  |\n"
+           "\t\t|______________________|\n"
+           "\t\t|0 - Voltar ao Menu    |\n"
+           "\t\t|______________________|\n"
+           "\t\t|Oque gostaria de fazer: ");
+    scanf("%d",&opc2);
+    getchar();
+
+    if(opc2==0)
+    {
+        system("cls");
+        printf("\n\n\n\n\n\t\t     Voltando Para o Menu...");
+        Sleep(600);
+        system("cls");
+        break;
+    }
+    if(opc2>1||opc2<0)
+    {
+        system("cls");
+        errouu();
+    }
+    if(opc2==1)
+    {
+        system("cls");
+        printf("\n\n\n\n"
+                "\t\t       ____________________\n"
+                "\t\t      |__COMPRA_CONCLUIDA__|\n"
+                "\t\t      |      Carinho       |\n"
+                "\t\t      |    Restaurados!    |\n"
+                "\t\t      |____________________|\n\n");
+        Sleep(2000);
+        system("cls");
+        resetar();
+        break;
+    }
+
+
+    }while(opc2!=0);
+    return;
+}

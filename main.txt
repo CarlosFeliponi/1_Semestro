@@ -1,0 +1,53 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <locale.h>
+#include <string.h>
+#include <windows.h>
+#include "mercado.h"
+
+
+int main(int argc, char* argv[])
+{
+    setlocale(LC_ALL,"portuguese");
+
+    int ops;/*opcao de escola do menu principal*/
+
+    printf("\n\n\n\n\n\t\t       HELLO THERE");/*NICE*/
+    Sleep(600);
+    system("cls");
+
+    do
+    {
+        ops = menu();
+        switch(ops)
+        {
+        case 1:
+            submenu(); /*funcao submenu de vendas*/
+            break;
+        case 2:
+            logo("       LISTA DE PRODUTOS      ");/*funcao molde do logo*/
+            produtos(); /*chamada da funcao que apresenta o stock atual*/
+            printf("\n\t\tPrecione uma tecla para voltar!"
+                   "\n\t\t--------------------------------");
+            system("pause>NULL");
+            system("cls");
+            printf("\n\n\n\n\n\t\t     Voltando Para o Menu...");
+            Sleep(600);
+            system("cls");
+            break;
+        case 3:
+            fim_compra();
+            break;
+        case 0:
+            printf("\n\n\n\n\n\t\t     There and Back Again!\n"
+                    "\t\t     ---------------------\n\n\n\n\n");
+            Sleep(600);
+            break;
+        default:
+            errouu();   /*funcao de tela de error*/
+            break;
+        }
+    }while(ops!=0);
+
+    return 0;
+}
